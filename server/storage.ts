@@ -32,6 +32,14 @@ export interface IStorage {
   leaveEvent(eventId: string, userId: string): Promise<boolean>;
   isUserAttending(eventId: string, userId: string): Promise<boolean>;
   getEventAttendees(eventId: string): Promise<User[]>;
+  
+  // Stats methods
+  getStats(): Promise<{
+    activeEvents: number;
+    communityMembers: number;
+    eventOrganizers: number;
+    eventCategories: number;
+  }>;
 }
 
 export class MemStorage implements IStorage {
@@ -327,6 +335,36 @@ export class MemStorage implements IStorage {
     }
     
     return attendees;
+  }
+
+  async getStats(): Promise<{
+    activeEvents: number;
+    communityMembers: number;
+    eventOrganizers: number;
+    eventCategories: number;
+  }> {
+    // Count active events
+    const activeEvents = Array.from(this.events.values()).filter(event => event.isActive).length;
+    
+    // Count total registered users
+    const communityMembers = this.users.size;
+    
+    // Count unique event organizers
+    const organizerIds = new Set();
+    Array.from(this.events.values()).forEach(event => {
+      if (event.isActive) organizerIds.add(event.organizerId);
+    });
+    const eventOrganizers = organizerIds.size;
+    
+    // Count available categories
+    const eventCategories = this.categories.size;
+    
+    return {
+      activeEvents,
+      communityMembers,
+      eventOrganizers,
+      eventCategories,
+    };
   }
 }
 

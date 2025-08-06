@@ -41,12 +41,11 @@ export default function Home() {
 
   const { data: stats } = useQuery({
     queryKey: ['/api/stats'],
-    queryFn: async () => ({
-      activeEvents: 127,
-      communityMembers: 2400,
-      eventOrganizers: 89,
-      eventCategories: 6,
-    }),
+    queryFn: async () => {
+      const response = await fetch('/api/stats');
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      return response.json();
+    },
   });
 
   const featuredEvents = events.slice(0, 6);
