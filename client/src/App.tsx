@@ -12,6 +12,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Profile from "@/pages/Profile";
 import CreateEvent from "@/pages/CreateEvent";
+import EditEvent from "@/pages/EditEvent";
 import EventDetails from "@/pages/EventDetails";
 import MyEvents from "@/pages/MyEvents";
 import NotFound from "@/pages/not-found";
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/profile" component={Profile} />
       <Route path="/create-event" component={CreateEvent} />
+      <Route path="/events/:id/edit" component={EditEvent} />
       <Route path="/events/:id" component={EventDetails} />
       <Route path="/my-events" component={MyEvents} />
       <Route component={NotFound} />

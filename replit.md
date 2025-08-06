@@ -52,6 +52,12 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Component Architecture
 - **Page Components**: Route-level components for major application sections
+  - Home: Event browsing with search and filters
+  - Login/Register: User authentication forms
+  - Profile: User profile management with photo upload capability
+  - CreateEvent/EditEvent: Event creation and editing forms
+  - EventDetails: Detailed event view with join/leave functionality
+  - MyEvents: User's created events management dashboard
 - **UI Components**: Reusable Shadcn/ui components with consistent theming
 - **Context Providers**: Authentication and theme management across the application
 - **Custom Hooks**: Specialized hooks for mobile detection and toast notifications
