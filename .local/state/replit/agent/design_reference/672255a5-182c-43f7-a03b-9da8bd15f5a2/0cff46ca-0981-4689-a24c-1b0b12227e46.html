@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Community Event Aggregator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'dark': {
+                            50: '#F9FAFB',
+                            100: '#F3F4F6', 
+                            200: '#E5E7EB',
+                            300: '#D1D5DB',
+                            400: '#9CA3AF',
+                            500: '#6B7280',
+                            600: '#4B5563',
+                            700: '#374151',
+                            800: '#1F2937',
+                            900: '#111827'
+                        },
+                        'category': {
+                            'music': '#8B5CF6',
+                            'sports': '#10B981', 
+                            'food': '#F59E0B',
+                            'arts': '#EF4444',
+                            'community': '#06B6D4',
+                            'business': '#8B5CF6',
+                            'tech': '#10B981'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark-900 text-dark-50 font-inter">
+    <!-- @COMPONENT: Navigation [isLoggedIn, user, activeRoute] -->
+    <nav class="bg-dark-800 border-b border-dark-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-calendar-alt text-blue-500 text-2xl mr-2"></i>
+                        <span class="font-bold text-xl text-dark-50">EventHub</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#" class="text-blue-400 px-3 py-2 rounded-md text-sm font-medium" data-bind="activeRoute === 'events' ? 'text-blue-400' : 'text-dark-300'">Events</a>
+                            <a href="#" class="text-dark-300 hover:text-dark-50 px-3 py-2 rounded-md text-sm font-medium">My Events</a>
+                            <a href="#" class="text-dark-300 hover:text-dark-50 px-3 py-2 rounded-md text-sm font-medium">Create Event</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <!-- User logged in state -->
+                        <div class="relative flex items-center space-x-4" data-mock="true">
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Create Event
+                            </button>
+                            <div class="relative">
+                                <button class="flex items-center space-x-3 text-dark-300 hover:text-dark-50" data-event="click:toggleUserMenu">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                        <span class="text-sm font-medium" data-bind="user.name.charAt(0)">J</span>
+                                    </div>
+                                    <span class="text-sm font-medium" data-bind="user.name">John Doe</span>
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- User logged out state (hidden by default) -->
+                        <div class="hidden space-x-3" data-mock="true">
+                            <button class="text-dark-300 hover:text-dark-50 px-4 py-2 text-sm font-medium" data-event="click:openLoginModal">Login</button>
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-event="click:openRegisterModal">Sign Up</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button class="text-dark-300 hover:text-dark-50 p-2" data-event="click:toggleMobileMenu">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: Navigation -->
+
+    <!-- @COMPONENT: MobileMenu [isOpen, isLoggedIn, user] -->
+    <div class="hidden md:hidden bg-dark-800 border-b border-dark-700" data-mock="true" data-implementation="Toggle visibility based on mobile menu state">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a href="#" class="text-blue-400 block px-3 py-2 rounded-md text-base font-medium">Events</a>
+            <a href="#" class="text-dark-300 hover:text-dark-50 block px-3 py-2 rounded-md text-base font-medium">My Events</a>
+            <a href="#" class="text-dark-300 hover:text-dark-50 block px-3 py-2 rounded-md text-base font-medium">Create Event</a>
+            <div class="border-t border-dark-700 pt-4 pb-3">
+                <div class="flex items-center px-5" data-mock="true">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span class="text-sm font-medium" data-bind="user.name.charAt(0)">J</span>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-base font-medium text-dark-50" data-bind="user.name">John Doe</div>
+                        <div class="text-sm font-medium text-dark-300" data-bind="user.email">john@example.com</div>
+                    </div>
+                </div>
+                <div class="mt-3 px-2 space-y-1">
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-dark-300 hover:text-dark-50">Profile</a>
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-dark-300 hover:text-dark-50">Settings</a>
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-dark-300 hover:text-dark-50">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: MobileMenu -->
+
+    <!-- @COMPONENT: HeroSection [searchTerm, onSearch] -->
+    <section class="bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-6xl font-bold text-dark-50 mb-4">
+                    Discover Local 
+                    <span class="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Events</span>
+                </h1>
+                <p class="text-xl text-dark-300 mb-8 max-w-3xl mx-auto">
+                    Connect with your community through amazing events happening near you
+                </p>
+                
+                <!-- Search Bar -->
+                <div class="max-w-2xl mx-auto">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-dark-400"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            placeholder="Search events, venues, or organizers..."
+                            class="w-full pl-10 pr-4 py-4 bg-dark-700 border border-dark-600 rounded-xl text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            data-bind="searchTerm"
+                            data-event="input:onSearchChange"
+                        >
+                        <button class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <div class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg transition-colors">
+                                <span class="text-white font-medium">Search</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: HeroSection -->
+
+    <!-- @COMPONENT: FilterSection [selectedCategory, selectedDate, selectedLocation, onFilterChange] -->
+    <section class="bg-dark-800 py-6 border-b border-dark-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-6">
+                <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <!-- Category Filter -->
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-filter text-dark-400"></i>
+                        <select class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 text-dark-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" data-event="change:onCategoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="music">🎵 Music</option>
+                            <option value="sports">⚽ Sports</option>
+                            <option value="food">🍕 Food & Drink</option>
+                            <option value="arts">🎨 Arts</option>
+                            <option value="community">🤝 Community</option>
+                            <option value="business">💼 Business</option>
+                            <option value="tech">💻 Technology</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Date Filter -->
+                    <select class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 text-dark-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" data-event="change:onDateFilter">
+                        <option value="">Any Date</option>
+                        <option value="today">Today</option>
+                        <option value="tomorrow">Tomorrow</option>
+                        <option value="this-week">This Week</option>
+                        <option value="this-month">This Month</option>
+                    </select>
+                    
+                    <!-- Location Filter -->
+                    <div class="relative">
+                        <i class="fas fa-map-marker-alt absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-400 text-sm"></i>
+                        <input 
+                            type="text" 
+                            placeholder="Location..." 
+                            class="bg-dark-700 border border-dark-600 rounded-lg pl-8 pr-3 py-2 text-dark-50 placeholder-dark-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-40"
+                            data-event="input:onLocationFilter"
+                        >
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4 text-sm">
+                    <span class="text-dark-400">Showing</span>
+                    <span class="text-dark-50 font-medium" data-bind="filteredEvents.length">247</span>
+                    <span class="text-dark-400">events</span>
+                    <button class="text-blue-400 hover:text-blue-300 ml-4" data-event="click:clearFilters">
+                        <i class="fas fa-times mr-1"></i>Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: FilterSection -->
+
+    <!-- @COMPONENT: EventsGrid [events, loading, onEventClick] -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Loading State -->
+            <div class="hidden" data-implementation="Show when loading">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- @MAP: Array(6).fill().map((_, index) => ( -->
+                    <div class="bg-dark-700 rounded-xl p-6 animate-pulse">
+                        <div class="h-48 bg-dark-600 rounded-lg mb-4"></div>
+                        <div class="h-4 bg-dark-600 rounded mb-2"></div>
+                        <div class="h-3 bg-dark-600 rounded w-2/3 mb-4"></div>
+                        <div class="flex items-center space-x-2">
+                            <div class="h-3 bg-dark-600 rounded w-1/4"></div>
+                            <div class="h-3 bg-dark-600 rounded w-1/3"></div>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+            </div>
+            
+            <!-- Events Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- @MAP: events.map(event => ( -->
+                
+                <!-- Music Event -->
+                <div class="bg-dark-800 rounded-xl overflow-hidden hover:bg-dark-700 transition-colors cursor-pointer group" data-event="click:onEventClick" data-bind="event.id">
+                    <!-- A vibrant concert stage with colorful lights and crowd silhouettes -->
+                    <div class="h-48 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400');">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-category-music text-white px-2 py-1 rounded-full text-xs font-medium">🎵 Music</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="text-white hover:text-red-400 transition-colors" data-event="click:toggleFavorite">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-dark-50 mb-2 group-hover:text-blue-400 transition-colors" data-bind="event.title">Summer Music Festival</h3>
+                        <p class="text-dark-300 text-sm mb-4 line-clamp-2" data-bind="event.description">Join us for an unforgettable night of live music featuring local and touring artists across multiple stages.</p>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-calendar mr-2 w-4"></i>
+                                <span data-bind="event.date">July 15, 2024</span>
+                                <span class="mx-2">•</span>
+                                <span data-bind="event.time">7:00 PM</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-map-marker-alt mr-2 w-4"></i>
+                                <span data-bind="event.location">Central Park Amphitheater</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-user mr-2 w-4"></i>
+                                <span data-bind="event.organizer">Music Events Co.</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-dark-700">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-dark-400 text-sm" data-bind="event.attendees">127</span>
+                                <span class="text-dark-400 text-sm">attending</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-blue-400 font-semibold" data-bind="event.price">Free</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sports Event -->
+                <div class="bg-dark-800 rounded-xl overflow-hidden hover:bg-dark-700 transition-colors cursor-pointer group" data-event="click:onEventClick">
+                    <!-- A soccer field with players during an intense match at golden hour -->
+                    <div class="h-48 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400');">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-category-sports text-white px-2 py-1 rounded-full text-xs font-medium">⚽ Sports</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="text-white hover:text-red-400 transition-colors">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-dark-50 mb-2 group-hover:text-blue-400 transition-colors">Community Soccer League</h3>
+                        <p class="text-dark-300 text-sm mb-4 line-clamp-2">Weekly soccer matches for all skill levels. Come join our friendly community league!</p>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-calendar mr-2 w-4"></i>
+                                <span>Every Saturday</span>
+                                <span class="mx-2">•</span>
+                                <span>10:00 AM</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-map-marker-alt mr-2 w-4"></i>
+                                <span>Riverside Sports Complex</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-user mr-2 w-4"></i>
+                                <span>City Sports Club</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-dark-700">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-dark-400 text-sm">45</span>
+                                <span class="text-dark-400 text-sm">attending</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-green-400 font-semibold">$10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Food Event -->
+                <div class="bg-dark-800 rounded-xl overflow-hidden hover:bg-dark-700 transition-colors cursor-pointer group" data-event="click:onEventClick">
+                    <!-- A bustling outdoor food market with colorful stalls and fresh ingredients -->
+                    <div class="h-48 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400');">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-category-food text-white px-2 py-1 rounded-full text-xs font-medium">🍕 Food</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="text-white hover:text-red-400 transition-colors">
+                                <i class="fas fa-heart text-red-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-dark-50 mb-2 group-hover:text-blue-400 transition-colors">Downtown Food Festival</h3>
+                        <p class="text-dark-300 text-sm mb-4 line-clamp-2">Taste the best local cuisine from over 50 food vendors and restaurants.</p>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-calendar mr-2 w-4"></i>
+                                <span>July 20-22, 2024</span>
+                                <span class="mx-2">•</span>
+                                <span>All Day</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-map-marker-alt mr-2 w-4"></i>
+                                <span>Downtown Square</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-user mr-2 w-4"></i>
+                                <span>Foodie Network</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-dark-700">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-dark-400 text-sm">892</span>
+                                <span class="text-dark-400 text-sm">attending</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-yellow-400 font-semibold">Free</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Arts Event -->
+                <div class="bg-dark-800 rounded-xl overflow-hidden hover:bg-dark-700 transition-colors cursor-pointer group" data-event="click:onEventClick">
+                    <!-- An art gallery with modern paintings and sculptures, soft lighting -->
+                    <div class="h-48 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400');">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-category-arts text-white px-2 py-1 rounded-full text-xs font-medium">🎨 Arts</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="text-white hover:text-red-400 transition-colors">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-dark-50 mb-2 group-hover:text-blue-400 transition-colors">Local Artists Showcase</h3>
+                        <p class="text-dark-300 text-sm mb-4 line-clamp-2">Discover amazing works by local artists in painting, sculpture, and digital art.</p>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-calendar mr-2 w-4"></i>
+                                <span>July 25, 2024</span>
+                                <span class="mx-2">•</span>
+                                <span>6:00 PM</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-map-marker-alt mr-2 w-4"></i>
+                                <span>City Art Gallery</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-user mr-2 w-4"></i>
+                                <span>Arts Council</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-dark-700">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-dark-400 text-sm">73</span>
+                                <span class="text-dark-400 text-sm">attending</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-blue-400 font-semibold">$15</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Community Event -->
+                <div class="bg-dark-800 rounded-xl overflow-hidden hover:bg-dark-700 transition-colors cursor-pointer group" data-event="click:onEventClick">
+                    <!-- People volunteering at a community garden, planting and gardening together -->
+                    <div class="h-48 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400');">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-category-community text-white px-2 py-1 rounded-full text-xs font-medium">🤝 Community</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="text-white hover:text-red-400 transition-colors">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-dark-50 mb-2 group-hover:text-blue-400 transition-colors">Community Garden Volunteer Day</h3>
+                        <p class="text-dark-300 text-sm mb-4 line-clamp-2">Help us maintain our community garden and learn about sustainable gardening practices.</p>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-calendar mr-2 w-4"></i>
+                                <span>July 30, 2024</span>
+                                <span class="mx-2">•</span>
+                                <span>9:00 AM</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-map-marker-alt mr-2 w-4"></i>
+                                <span>Greenville Community Garden</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-user mr-2 w-4"></i>
+                                <span>Green Community Org</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-dark-700">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-dark-400 text-sm">28</span>
+                                <span class="text-dark-400 text-sm">attending</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-green-400 font-semibold">Free</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tech Event -->
+                <div class="bg-dark-800 rounded-xl overflow-hidden hover:bg-dark-700 transition-colors cursor-pointer group" data-event="click:onEventClick">
+                    <!-- A modern conference room with people attending a tech presentation, screens showing code -->
+                    <div class="h-48 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400');">
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-category-tech text-white px-2 py-1 rounded-full text-xs font-medium">💻 Tech</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="text-white hover:text-red-400 transition-colors">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-dark-50 mb-2 group-hover:text-blue-400 transition-colors">JavaScript Meetup</h3>
+                        <p class="text-dark-300 text-sm mb-4 line-clamp-2">Monthly meetup for JavaScript developers. Learn about the latest frameworks and network with peers.</p>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-calendar mr-2 w-4"></i>
+                                <span>August 5, 2024</span>
+                                <span class="mx-2">•</span>
+                                <span>6:30 PM</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-map-marker-alt mr-2 w-4"></i>
+                                <span>Tech Hub Coworking</span>
+                            </div>
+                            <div class="flex items-center text-dark-300">
+                                <i class="fas fa-user mr-2 w-4"></i>
+                                <span>Dev Community</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-dark-700">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-dark-400 text-sm">156</span>
+                                <span class="text-dark-400 text-sm">attending</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-blue-400 font-semibold">Free</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- @END_MAP )) -->
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="text-center mt-12">
+                <button class="bg-dark-700 hover:bg-dark-600 text-dark-50 px-8 py-3 rounded-xl border border-dark-600 transition-colors" data-event="click:loadMoreEvents">
+                    Load More Events
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: EventsGrid -->
+
+    <!-- @COMPONENT: AuthModal [isOpen, mode] -->
+    <div class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" data-mock="true" data-implementation="Toggle visibility based on modal state">
+        <div class="bg-dark-800 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-dark-50" data-bind="mode === 'login' ? 'Welcome Back' : 'Create Account'">Welcome Back</h2>
+                    <button class="text-dark-400 hover:text-dark-300" data-event="click:closeModal">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Login Form -->
+                <form class="space-y-4" data-implementation="Show when mode === 'login'" data-event="submit:handleLogin">
+                    <div>
+                        <label class="block text-sm font-medium text-dark-300 mb-2">Email</label>
+                        <input 
+                            type="email" 
+                            class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your email"
+                            required
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-dark-300 mb-2">Password</label>
+                        <input 
+                            type="password" 
+                            class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded bg-dark-700 border-dark-600 text-blue-500">
+                            <span class="ml-2 text-sm text-dark-300">Remember me</span>
+                        </label>
+                        <a href="#" class="text-sm text-blue-400 hover:text-blue-300">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors">
+                        Sign In
+                    </button>
+                    
+                    <div class="text-center">
+                        <span class="text-dark-400 text-sm">Don't have an account? </span>
+                        <button type="button" class="text-blue-400 hover:text-blue-300 text-sm font-medium" data-event="click:switchToRegister">
+                            Sign up here
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Register Form (Hidden by default) -->
+                <form class="hidden space-y-4" data-implementation="Show when mode === 'register'" data-event="submit:handleRegister">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-dark-300 mb-2">First Name</label>
+                            <input 
+                                type="text" 
+                                class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="First name"
+                                required
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-dark-300 mb-2">Last Name</label>
+                            <input 
+                                type="text" 
+                                class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Last name"
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-dark-300 mb-2">Email</label>
+                        <input 
+                            type="email" 
+                            class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your email"
+                            required
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-dark-300 mb-2">Password</label>
+                        <input 
+                            type="password" 
+                            class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Create a password"
+                            required
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-dark-300 mb-2">Confirm Password</label>
+                        <input 
+                            type="password" 
+                            class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Confirm your password"
+                            required
+                        >
+                    </div>
+                    
+                    <label class="flex items-start">
+                        <input type="checkbox" class="rounded bg-dark-700 border-dark-600 text-blue-500 mt-1" required>
+                        <span class="ml-2 text-sm text-dark-300">I agree to the <a href="#" class="text-blue-400 hover:text-blue-300">Terms of Service</a> and <a href="#" class="text-blue-400 hover:text-blue-300">Privacy Policy</a></span>
+                    </label>
+                    
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors">
+                        Create Account
+                    </button>
+                    
+                    <div class="text-center">
+                        <span class="text-dark-400 text-sm">Already have an account? </span>
+                        <button type="button" class="text-blue-400 hover:text-blue-300 text-sm font-medium" data-event="click:switchToLogin">
+                            Sign in here
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AuthModal -->
+
+    <!-- @COMPONENT: CreateEventModal [isOpen, eventData, onSave] -->
+    <div class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" data-mock="true" data-implementation="Toggle visibility based on modal state">
+        <div class="bg-dark-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-dark-50">Create New Event</h2>
+                    <button class="text-dark-400 hover:text-dark-300" data-event="click:closeModal">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form class="space-y-6" data-event="submit:handleCreateEvent">
+                    <!-- Event Image -->
+                    <div>
+                        <label class="block text-sm font-medium text-dark-300 mb-2">Event Image</label>
+                        <div class="border-2 border-dashed border-dark-600 rounded-lg p-6 text-center" data-implementation="File upload component">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-dark-400 mb-2"></i>
+                            <p class="text-dark-400 text-sm">Click to upload or drag and drop</p>
+                            <p class="text-dark-500 text-xs mt-1">PNG, JPG up to 10MB</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-dark-300 mb-2">Event Title</label>
+                            <input 
+                                type="text" 
+                                class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter event title"
+                                required
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-dark-300 mb-2">Category</label>
+                            <select class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="">Select category</option>
+                                <option value="music">🎵 Music</option>
+                                <option value="sports">⚽ Sports</option>
+                                <option value="food">🍕 Food & Drink</option>
+                                <option value="arts">🎨 Arts</option>
+                                <option value="community">🤝 Community</option>
+                                <option value="business">💼 Business</option>
+                                <option value="tech">💻 Technology</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-dark-300 mb-2">Description</label>
+                        <textarea 
+                            rows="4"
+                            class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Describe your event..."
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-dark-300 mb-2">Date</label>
+                            <input 
+                                type="date" 
+                                class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-dark-300 mb-2">Time</label>
+                            <input 
+                                type="time" 
+                                class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-dark-300 mb-2">Location</label>
+                        <input 
+                            type="text" 
+                            class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter event location"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-dark-300 mb-2">Price</label>
+                            <input 
+                                type="number" 
+                                step="0.01"
+                                min="0"
+                                class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="0.00"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-dark-300 mb-2">Max Attendees (Optional)</label>
+                            <input 
+                                type="number" 
+                                min="1"
+                                class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-dark-50 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Unlimited"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-end space-x-4 pt-6 border-t border-dark-700">
+                        <button type="button" class="px-6 py-2 text-dark-300 hover:text-dark-50 transition-colors" data-event="click:closeModal">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                            Create Event
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: CreateEventModal -->
+
+    <!-- @COMPONENT: Footer -->
+    <footer class="bg-dark-800 border-t border-dark-700 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-calendar-alt text-blue-500 text-2xl mr-2"></i>
+                        <span class="font-bold text-xl text-dark-50">EventHub</span>
+                    </div>
+                    <p class="text-dark-300 mb-4 max-w-md">
+                        Connecting communities through amazing local events. Discover, create, and join events that bring people together.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-dark-400 hover:text-blue-400 transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-dark-400 hover:text-blue-400 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-dark-400 hover:text-blue-400 transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-dark-400 hover:text-blue-400 transition-colors">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-dark-50 mb-4">Explore</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-dark-300 hover:text-dark-50 transition-colors">All Events</a></li>
+                        <li><a href="#" class="text-dark-300 hover:text-dark-50 transition-colors">Popular Events</a></li>
+                        <li><a href="#" class="text-dark-300 hover:text-dark-50 transition-colors">Free Events</a></li>
+                        <li><a href="#" class="text-dark-300 hover:text-dark-50 transition-colors">This Weekend</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-dark-50 mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-dark-300 hover:text-dark-50 transition-colors">Help Center</a></li>
+                        <li><a href="#" class="text-dark-300 hover:text-dark-50 transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="text-dark-300 hover:text-dark-50 transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-dark-300 hover:text-dark-50 transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-dark-700 mt-12 pt-8 text-center">
+                <p class="text-dark-400 text-sm">
+                    © 2024 EventHub. All rights reserved. Built with passion for community connection.
+                </p>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        
+        (function() {
+            'use strict';
+            
+            // Mock state for demonstration
+            let mockState = {
+                user: null,
+                isLoggedIn: false,
+                events: [],
+                filters: {
+                    category: '',
+                    date: '',
+                    location: '',
+                    search: ''
+                }
+            };
+            
+            // DOM ready handler
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('EventHub application initialized');
+                // TODO: Initialize React app, setup routing, and load initial data
+            });
+            
+            // Basic interactivity for demonstration
+            document.addEventListener('click', function(e) {
+                // Handle modal toggles, navigation, etc.
+                console.log('Click event:', e.target);
+            });
+            
+        })();
+    </script>
+</body>
+</html>
