@@ -1,0 +1,77 @@
+Prompt:
+Build a production-quality full-stack “Local Community Event Aggregator” web application.
+
+Purpose:
+A polished, real-world style project to showcase full-stack development skills in a resume/portfolio.
+
+Requirements:
+
+Tech Stack:
+
+    Frontend: React.js + React Router, modern component-based architecture, clean styling (Tailwind CSS or Material UI), responsive design.
+
+    Backend: Node.js + Express.js, RESTful API, MongoDB with Mongoose.
+
+    Auth: JWT-based authentication, bcrypt password hashing, secure password storage.
+
+Core Features:
+
+    User Authentication:
+
+        Register, log in, and log out.
+
+        Password encryption with bcrypt.
+
+        JWT for session handling.
+
+    Event Management:
+
+        Authenticated users can create, edit, and delete their own events.
+
+        Event fields: title, description, date, time, location, category (music, sports, food & drink, etc.).
+
+    Event Browsing:
+
+        Public dashboard of upcoming events.
+
+        Search bar for keyword search.
+
+        Filters by category, date, and location.
+
+    User Profiles:
+
+        View personal profile info.
+
+        List of events the user has created.
+
+Project Structure & Quality:
+
+    Clear folder separation: /frontend (React app) and /backend (Express server).
+
+    Mongoose models: User, Event, Category.
+
+    Express routes: /auth, /events, /users.
+
+    Authentication middleware for protected routes.
+
+    Error handling, validation, and clean code practices.
+
+    Environment variables: PORT, MONGO_URI, JWT_SECRET, CLIENT_URL.
+
+    Seed script for sample categories and events.
+
+Extra polish for resume value:
+
+    Responsive UI with mobile-first design.
+
+    Loading states and error messages on frontend.
+
+    Deployed version (e.g., Vercel for frontend, Render/Heroku for backend, MongoDB Atlas).
+
+    README.md with screenshots, setup instructions, and feature list.
+
+Deliverable:
+
+    Fully functional, deployed application with clean, maintainable code and professional UI/UX.
+
+    Ready-to-run locally in Replit with npm run dev for backend and npm start for frontend.
